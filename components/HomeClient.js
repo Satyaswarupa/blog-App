@@ -50,25 +50,26 @@ export default function HomeClient({ posts: initialPosts }) {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    // Handle splash screen timeout
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2000); // 1.5 seconds
-
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Simulate client-side loading for consistency with createPost
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        // If server-side posts are passed, no need to fetch again unless revalidating
-        setTimeout(() => {
-          setLoading(false);
-        }, 500); // Simulate network delay
+        const response = await fetch('/api/posts');
+        if (response.ok) {
+          const data = await response.json();
+          setPosts(data);
+        } else {
+          setError('Failed to fetch posts');
+        }
       } catch (err) {
         setError('An error occurred while loading posts');
+      } finally {
         setLoading(false);
       }
     };
@@ -98,6 +99,12 @@ export default function HomeClient({ posts: initialPosts }) {
 
       if (response.ok) {
         setPosts(posts.filter(post => post._id !== postId));
+        // Revalidate home page cache
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: '/' }),
+        });
       } else {
         const data = await response.json();
         setError(data.message || 'Failed to delete post');
@@ -137,6 +144,12 @@ export default function HomeClient({ posts: initialPosts }) {
         setEditingPostId(null);
         setEditTitle('');
         setEditContent('');
+        // Revalidate home page cache
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: '/' }),
+        });
       } else {
         const data = await response.json();
         setError(data.message || 'Failed to update post');
@@ -204,7 +217,7 @@ export default function HomeClient({ posts: initialPosts }) {
           top: 0,
           left: 0,
           zIndex: 2000,
-          animation: 'fadeOut 0.5s ease-out forwards 1s', // Fade out after 1s
+          animation: 'fadeOut 0.5s ease-out forwards 1s',
           '@keyframes fadeOut': {
             '0%': { opacity: 1 },
             '100%': { opacity: 0 },
@@ -626,7 +639,7 @@ export default function HomeClient({ posts: initialPosts }) {
             color: '#1976d2',
             opacity: pathname === '/' ? 0.5 : 1,
             pointerEvents: pathname === '/' ? 'none' : 'auto',
-            '&:hover': { bgcolor: pathname === '/' ? '#ffffff' : '#e0e0e0', transform: pathname === '/' ? 'none' : 'scale(1.05)' },
+            '&:hover': { bgcolor: pathname === '/' ? 'none' : '#e0e0e0', transform: pathname === '/' ? 'none' : 'scale(1.05)' },
             transition: 'all 0.2s ease-in-out',
             borderRadius: 2,
             px: { xs: 1.5, sm: 2 },
@@ -647,7 +660,7 @@ export default function HomeClient({ posts: initialPosts }) {
             color: '#1976d2',
             opacity: pathname === '/createPost' ? 0.5 : 1,
             pointerEvents: pathname === '/createPost' ? 'none' : 'auto',
-            '&:hover': { bgcolor: pathname === '/createPost' ? '#ffffff' : '#e0e0e0', transform: pathname === '/createPost' ? 'none' : 'scale(1.05)' },
+            '&:hover': { bgcolor: pathname === '/createPost' ? 'none' : '#e0e0e0', transform: pathname === '/createPost' ? 'none' : 'scale(1.05)' },
             transition: 'all 0.2s ease-in-out',
             borderRadius: 2,
             px: { xs: 1.5, sm: 2 },
