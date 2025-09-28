@@ -334,13 +334,6 @@ export default function HomeClient({ posts: initialPosts }) {
       </AppBar>
 
       <Container maxWidth="lg" sx={{ py: 4, flex: 1 }}>
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ fontWeight: 700, color: '#ffffff', textAlign: 'center', mb: 4, fontSize: { xs: '1.5rem', sm: '2rem' } }}
-        >
-          All Posts
-        </Typography>
         <Backdrop
           sx={{ color: '#1976d2', zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: '#00000080' }}
           open={isLoading}
