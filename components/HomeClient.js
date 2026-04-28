@@ -238,7 +238,7 @@ export default function HomeClient({ posts: initialPosts }) {
             },
           }}
         >
-          Share your beautiful thoughts here
+          Share your beautiful thoughts
         </Typography>
       </Box>
     );
